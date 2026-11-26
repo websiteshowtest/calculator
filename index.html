@@ -1,0 +1,459 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS — Calculator</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --cyan: #01c7fc;
+    --purple: #9b5cff;
+    --pink: #ff4fc8;
+}
+
+body {
+    min-height: 100vh;
+    font-family: Inter, Arial, sans-serif;
+    background: #080b18;
+    color: white;
+    overflow-x: hidden;
+}
+
+/* Animated background */
+
+.background {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background:
+        radial-gradient(circle at 20% 30%, #163a64 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, #461c65 0%, transparent 40%),
+        #080b18;
+    animation: backgroundMove 12s infinite alternate ease-in-out;
+}
+
+@keyframes backgroundMove {
+    0% { filter: hue-rotate(0deg); transform: scale(1); }
+    100% { filter: hue-rotate(45deg); transform: scale(1.15); }
+}
+
+.orb {
+    position: fixed;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: .35;
+    z-index: -1;
+    animation: float 10s infinite alternate ease-in-out;
+}
+
+.orb.one {
+    background: var(--cyan);
+    top: 5%;
+    left: -100px;
+}
+
+.orb.two {
+    background: var(--purple);
+    bottom: 5%;
+    right: -100px;
+    animation-delay: -5s;
+}
+
+@keyframes float {
+    to { transform: translate(100px, -80px) scale(1.4); }
+}
+
+/* Scrolling movement */
+
+.scene {
+    min-height: 190vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8vh 20px 20vh;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 55px;
+    animation: fadeIn 1s ease both;
+}
+
+.logo {
+    font-size: 13px;
+    letter-spacing: 7px;
+    color: var(--cyan);
+    font-weight: 800;
+}
+
+.header h1 {
+    font-size: clamp(35px, 7vw, 65px);
+    margin-top: 15px;
+    background: linear-gradient(90deg, white, var(--cyan), var(--purple));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.header p {
+    color: #8994b3;
+    margin-top: 12px;
+}
+
+/* Calculator */
+
+.calculator {
+    width: min(100%, 390px);
+    padding: 25px;
+    border-radius: 30px;
+    background: rgba(18, 25, 48, .72);
+    border: 1px solid rgba(255,255,255,.12);
+    box-shadow: 0 30px 100px rgba(0,0,0,.5),
+                0 0 40px rgba(1,199,252,.12);
+    backdrop-filter: blur(25px);
+    animation: appear 1s cubic-bezier(.2,.8,.2,1) both;
+    transform-origin: center;
+    transition: transform .15s ease-out;
+}
+
+@keyframes appear {
+    from { opacity: 0; transform: translateY(100px) scale(.8); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.display {
+    min-height: 125px;
+    padding: 20px 10px;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+}
+
+.previous {
+    min-height: 25px;
+    color: #8794b5;
+    font-size: 16px;
+    overflow-wrap: anywhere;
+}
+
+.current {
+    font-size: clamp(35px, 9vw, 48px);
+    font-weight: 700;
+    overflow-wrap: anywhere;
+    transition: .2s;
+}
+
+.current.pop {
+    animation: numberPop .2s ease;
+}
+
+@keyframes numberPop {
+    50% { transform: scale(1.08); color: var(--cyan); }
+}
+
+.keys {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+button {
+    height: 68px;
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 19px;
+    background: rgba(255,255,255,.055);
+    color: white;
+    font-size: 22px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .15s, background .2s, box-shadow .2s;
+    position: relative;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+}
+
+button:hover {
+    background: rgba(1,199,252,.18);
+    box-shadow: 0 0 22px rgba(1,199,252,.2);
+    transform: translateY(-4px);
+}
+
+button:active {
+    transform: scale(.88);
+}
+
+button.operator {
+    color: var(--cyan);
+    background: rgba(1,199,252,.1);
+}
+
+button.special {
+    color: #ff79d5;
+    background: rgba(255,79,200,.1);
+}
+
+button.equals {
+    background: linear-gradient(135deg, #01c7fc, #7656ff);
+    box-shadow: 0 5px 25px rgba(1,199,252,.25);
+    color: white;
+}
+
+button.zero {
+    grid-column: span 2;
+}
+
+.footer {
+    margin-top: 35px;
+    color: #69748f;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-align: center;
+}
+
+.scroll-hint {
+    margin-top: 100px;
+    color: #8590aa;
+    text-align: center;
+    font-size: 13px;
+    animation: hint 2s infinite;
+}
+
+@keyframes hint {
+    50% { transform: translateY(12px); opacity: .5; }
+}
+
+.scroll-hint span {
+    display: block;
+    font-size: 28px;
+    margin-top: 10px;
+}
+
+@media(max-width: 420px) {
+    .calculator { padding: 18px; }
+    button { height: 62px; }
+    .keys { gap: 9px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="background"></div>
+<div class="orb one"></div>
+<div class="orb two"></div>
+
+<main class="scene">
+
+    <header class="header">
+        <div class="logo">NEXUS SYSTEMS</div>
+        <h1>CALCULATOR.</h1>
+        <p>Math has never looked this good.</p>
+    </header>
+
+    <section class="calculator" id="calculator">
+
+        <div class="display">
+            <div class="previous" id="previous"></div>
+            <div class="current" id="current">0</div>
+        </div>
+
+        <div class="keys">
+            <button class="special" onclick="clearAll()">AC</button>
+            <button class="special" onclick="deleteLast()">DEL</button>
+            <button class="operator" onclick="percent()">%</button>
+            <button class="operator" onclick="chooseOperator('/')">÷</button>
+
+            <button onclick="appendNumber('7')">7</button>
+            <button onclick="appendNumber('8')">8</button>
+            <button onclick="appendNumber('9')">9</button>
+            <button class="operator" onclick="chooseOperator('*')">×</button>
+
+            <button onclick="appendNumber('4')">4</button>
+            <button onclick="appendNumber('5')">5</button>
+            <button onclick="appendNumber('6')">6</button>
+            <button class="operator" onclick="chooseOperator('-')">−</button>
+
+            <button onclick="appendNumber('1')">1</button>
+            <button onclick="appendNumber('2')">2</button>
+            <button onclick="appendNumber('3')">3</button>
+            <button class="operator" onclick="chooseOperator('+')">+</button>
+
+            <button class="special" onclick="toggleSign()">±</button>
+            <button class="zero" onclick="appendNumber('0')">0</button>
+            <button onclick="appendNumber('.')">.</button>
+            <button class="equals" onclick="calculate()">=</button>
+        </div>
+
+    </section>
+
+    <div class="footer">DESIGNED FOR THE FUTURE · 2026</div>
+
+    <div class="scroll-hint">
+        SCROLL TO MOVE THE EXPERIENCE
+        <span>↓</span>
+    </div>
+
+</main>
+
+<script>
+const current = document.getElementById("current");
+const previous = document.getElementById("previous");
+const calculator = document.getElementById("calculator");
+
+let input = "0";
+let stored = null;
+let operator = null;
+let resetNext = false;
+
+function render() {
+    current.textContent = input;
+    current.classList.remove("pop");
+    void current.offsetWidth;
+    current.classList.add("pop");
+}
+
+function appendNumber(number) {
+    if (resetNext) {
+        input = number === "." ? "0." : number;
+        resetNext = false;
+    } else if (number === "." && input.includes(".")) {
+        return;
+    } else if (input === "0" && number !== ".") {
+        input = number;
+    } else {
+        if (input.length >= 15) return;
+        input += number;
+    }
+    render();
+}
+
+function chooseOperator(op) {
+    if (operator && !resetNext) calculate();
+    stored = Number(input);
+    operator = op;
+    previous.textContent = input + " " + op;
+    resetNext = true;
+}
+
+function calculate() {
+    if (operator === null || stored === null) return;
+
+    const a = stored;
+    const b = Number(input);
+    let result;
+
+    switch (operator) {
+        case "+": result = a + b; break;
+        case "-": result = a - b; break;
+        case "*": result = a * b; break;
+        case "/":
+            if (b === 0) {
+                input = "Error";
+                stored = null;
+                operator = null;
+                previous.textContent = "Cannot divide by zero";
+                render();
+                resetNext = true;
+                return;
+            }
+            result = a / b;
+            break;
+    }
+
+    if (!Number.isFinite(result)) {
+        input = "Error";
+    } else {
+        input = String(Number(result.toPrecision(12)));
+    }
+
+    previous.textContent = a + " " + operator + " " + b + " =";
+    stored = null;
+    operator = null;
+    resetNext = true;
+    render();
+}
+
+function clearAll() {
+    input = "0";
+    stored = null;
+    operator = null;
+    previous.textContent = "";
+    resetNext = false;
+    render();
+}
+
+function deleteLast() {
+    if (resetNext || input === "Error") {
+        input = "0";
+        resetNext = false;
+    } else {
+        input = input.length > 1 ? input.slice(0, -1) : "0";
+        if (input === "-") input = "0";
+    }
+    render();
+}
+
+function percent() {
+    input = String(Number(input) / 100);
+    render();
+}
+
+function toggleSign() {
+    if (input !== "0" && input !== "Error") {
+        input = String(-Number(input));
+        render();
+    }
+}
+
+/* Keyboard support */
+
+document.addEventListener("keydown", e => {
+    if (/^[0-9.]$/.test(e.key)) appendNumber(e.key);
+    else if (["+", "-", "*", "/"].includes(e.key)) chooseOperator(e.key);
+    else if (e.key === "Enter" || e.key === "=") calculate();
+    else if (e.key === "Backspace") deleteLast();
+    else if (e.key === "Escape") clearAll();
+    else if (e.key === "%") percent();
+});
+
+/* Scroll-based movement */
+
+let ticking = false;
+
+window.addEventListener("scroll", () => {
+    if (ticking) return;
+    ticking = true;
+
+    requestAnimationFrame(() => {
+        const scroll = window.scrollY;
+        const movement = Math.sin(scroll / 180) * 12;
+        const rotation = Math.sin(scroll / 350) * 3;
+        const scale = 1 - Math.min(scroll / 5000, .08);
+
+        calculator.style.transform =
+            `translateY(${movement}px) rotate(${rotation}deg) scale(${scale})`;
+
+        ticking = false;
+    });
+});
+</script>
+
+</body>
+</html>
